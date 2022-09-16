@@ -17,17 +17,18 @@ rm -rf ${SEQS}
 mkdir -p ${SEQS}
 
 for GENE in ${GENES} ; do
-    echo 1>&2 "## $GENE"
+    echo 1>&2 "## $GENE: extracting"
     
     (
 	set +o pipefail
 	cat ${STRAIN_LIST} | \
 	    while read STRAIN ; do
-		grep -F -h "Name=${GENE}" ${PROKKA_DIR}/${STRAIN}_prokka/output.gff \
+		grep -F -h "Name=${GENE};" ${PROKKA_DIR}/${STRAIN}_prokka/output.gff \
 		    | ${PIPELINE}/scripts/gff2fna -c ${PROKKA_DIR}/${STRAIN}_prokka/output.fna \
 		    | sed -e 's/>.*/>'${STRAIN}'/'
 	    done
     ) > ${SEQS}/${GENE}.fasta
+    echo 1>&2 "## $GENE: found:" $(grep '^>' ${SEQS}/${GENE}.fasta | wc -l)
 
 done
 
